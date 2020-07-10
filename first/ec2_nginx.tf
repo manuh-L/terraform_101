@@ -7,7 +7,7 @@ variable "aws_secret_key" {}
 variable "private_key_path" {}
 variable "key_name" {}
 variable "region" {
-  default = "us-east-1"
+  default = "af-south-1"
 }
 
 ##################################################################################
@@ -38,12 +38,13 @@ data "aws_ami" "aws-linux" {
     values = ["ebs"]
   }
 
-  filter {
+   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-}
+  
 
+}
 
 ##################################################################################
 # RESOURCES
@@ -81,7 +82,7 @@ resource "aws_security_group" "allow_ssh" {
 
 resource "aws_instance" "nginx" {
   ami                    = data.aws_ami.aws-linux.id
-  instance_type          = "t2.micro"
+  instance_type          = "t3.micro"
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
 
