@@ -1,0 +1,16 @@
+---
+- name: webserver configuration
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Install Apache
+      yum: name=httpd state=present
+
+    - name: Enable Apache Service on boot
+      service: name=httpd enabled=yes state=started
+
+    - name: Setting up web page
+      copy:
+        src: ./index.html
+        dest: /var/www/html/index.html
