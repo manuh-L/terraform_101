@@ -2,6 +2,19 @@ variable "vsphere_user" {}
 variable "vsphere_password" {}
 variable "vsphere_server" {}
 variable "vm_password" {}
+variable "datacenter" {}
+variable "cluster" {}
+variable "datastore" {}
+variable "net_name" {}
+variable "template" {}
+variable "vm_name" {}
+variable "workgroup" {}
+variable "num_cpus" {}
+variable "memory" {}
+variable "ipv4_address" {}
+variable "ipv4_netmask" {}
+variable "dns_server_list" {}
+variable "ipv4_gateway" {}
 
 provider "vsphere" {
   user           = var.vsphere_user
@@ -13,37 +26,37 @@ provider "vsphere" {
 }
 
 data "vsphere_datacenter" "dc" {
-  name = "Moza Banco"
+  name = var.datacenter
 }
 
 data "vsphere_compute_cluster" "cluster" {
-  name          = "Disaster Recovery Site"
+  name          = var.cluster
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 data "vsphere_datastore" "datastore" {
-  name          = "Pool3-DataStore12-VNXR5"
+  name          = var.datastore
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 
 data "vsphere_network" "network" {
-  name          = "VLAN 850 - Servers Dev"
+  name          = var.net_name
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 data "vsphere_virtual_machine" "template" {
-  name          = "Win2k16_pvscsi_winrm"
+  name          = var.template
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 resource "vsphere_virtual_machine" "vm" {
-  name             = "SVDRSTEST"
+  name             = var.vm_name
   datastore_id     = data.vsphere_datastore.datastore.id
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
 
-  num_cpus = 2
-  memory   = 4096
+  num_cpus = var.num_cpus
+  memory   = var.memory
   guest_id = data.vsphere_virtual_machine.template.guest_id
   scsi_type = data.vsphere_virtual_machine.template.scsi_type
   
@@ -64,18 +77,18 @@ resource "vsphere_virtual_machine" "vm" {
     customize {
 
       windows_options {
-        computer_name = "VM-test"
-        workgroup    = "hashicorp"
+        computer_name = var.vm_name
+        workgroup    = var.workgroup
         admin_password = var.vm_password
       }
 
       network_interface {
-        ipv4_address = "10.111.133.11"
-        ipv4_netmask = 27
-        dns_server_list = ["10.111.1.97"]
+        ipv4_address = var.ipv4_address
+        ipv4_netmask = var.ipv4_netmask
+        dns_server_list = var.dns_server_list
       }
       
-      ipv4_gateway = "10.111.133.30"
+      ipv4_gateway = var.ipv4_gateway
       
     }
   }
