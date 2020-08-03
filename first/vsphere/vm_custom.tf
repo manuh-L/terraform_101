@@ -1,7 +1,6 @@
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
-variable "private_key_path" {}
-variable "key_name" {}
+variable "vsphere_user" {}
+variable "vsphere_password" {}
+variable "vsphere_server" {}
 
 provider "vsphere" {
   user           = var.vsphere_user
@@ -14,6 +13,11 @@ provider "vsphere" {
 
 data "vsphere_datacenter" "dc" {
   name = "Moza Banco"
+}
+
+data "vsphere_compute_cluster" "cluster" {
+  name          = "Disaster Recovery Site"
+  datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 data "vsphere_datastore" "datastore" {
@@ -35,6 +39,7 @@ data "vsphere_virtual_machine" "template" {
 resource "vsphere_virtual_machine" "vm" {
   name             = "SVDRSTEST"
   datastore_id     = data.vsphere_datastore.datastore.id
+  resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
 
   num_cpus = 2
   memory   = 4096
@@ -51,7 +56,7 @@ resource "vsphere_virtual_machine" "vm" {
   }
 
   clone {
-    template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    template_uuid = "data.vsphere_virtual_machine.template.id
 
     customize {
       windows_options {
