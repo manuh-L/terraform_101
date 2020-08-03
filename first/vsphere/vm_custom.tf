@@ -1,6 +1,7 @@
 variable "vsphere_user" {}
 variable "vsphere_password" {}
 variable "vsphere_server" {}
+variable "vm_password" {}
 
 provider "vsphere" {
   user           = var.vsphere_user
@@ -27,7 +28,7 @@ data "vsphere_datastore" "datastore" {
 
 
 data "vsphere_network" "network" {
-  name          = "LAB"
+  name          = "VLAN 850 - Servers Dev"
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
@@ -48,28 +49,34 @@ resource "vsphere_virtual_machine" "vm" {
   
   network_interface {
     network_id = data.vsphere_network.network.id
+    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
   }
 
   disk {
     label = "disk0"
     size  = data.vsphere_virtual_machine.template.disks.0.size
+    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
   }
 
   clone {
     template_uuid = data.vsphere_virtual_machine.template.id
 
     customize {
+
       windows_options {
         computer_name = "VM-test"
         workgroup    = "hashicorp"
+        admin_password = var.vm_password
       }
 
       network_interface {
-        ipv4_address = "10.0.0.10"
-        ipv4_netmask = 26
+        ipv4_address = "10.111.133.11"
+        ipv4_netmask = 27
+        dns_server_list = ["10.111.1.97"]
       }
-
-      ipv4_gateway = "10.0.0.1"
+      
+      ipv4_gateway = "10.111.133.30"
+      
     }
   }
 
