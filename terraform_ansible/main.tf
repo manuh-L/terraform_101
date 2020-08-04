@@ -85,6 +85,11 @@ resource "aws_instance" "apache_terraform" {
   instance_type          = "t3.micro"
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  tags = {
+      Name = "apache"
+      Role = "web"
+
+  }
 
   
 
@@ -103,7 +108,11 @@ resource "aws_instance" "apache_terraform" {
   }
   
   provisioner "local-exec" {
-    command = "ansible ${self.public_ip} -m ping --private-key ${var.private_key_path} "
+    command = "terraform-inventory -inventory ./ > inv.ini"
+  }
+
+  provisioner "local-exec" {
+    command = "ansible-playbook --inventory-file=/usr/sbin/terraform-inventory apache.yml -u ec2-user --private-key /home/admin/Documents/PrivateSvr.pem -vvv"
   }
 
 

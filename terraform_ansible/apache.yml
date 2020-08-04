@@ -1,9 +1,10 @@
 ---
 - name: webserver configuration
-  hosts: localhost
+  hosts: apache_terraform
   become: true
 
   tasks:
+
     - name: Install Apache
       yum: name=httpd state=present
 
