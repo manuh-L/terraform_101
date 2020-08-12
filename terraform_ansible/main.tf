@@ -93,12 +93,6 @@ resource "aws_instance" "apache_terraform" {
 
   
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo yum update -y"
-    ]
-  }
-
   connection {
     type        = "ssh"
     host        = self.public_ip
@@ -106,15 +100,37 @@ resource "aws_instance" "apache_terraform" {
     private_key = file(var.private_key_path)
 
   }
+
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum update -y"
+    ]
+  }
+
   
+
+ 
   provisioner "local-exec" {
-    command = "terraform-inventory -inventory ./ > inv.ini"
+    command = "ansible-playbook -i inv.ini apache.yml -u ec2-user --private-key /home/admin/Documents/PrivateSvr.pem -vvv"
   }
 
-  provisioner "local-exec" {
-    command = "ansible-playbook --inventory-file=/usr/sbin/terraform-inventory apache.yml -u ec2-user --private-key /home/admin/Documents/PrivateSvr.pem -vvv"
+
+ provisioner "local-exec" {
+    command = "TF_STATE=./ ansible-playbook --inventory-file=/usr/sbin/terraform-inventory ./apache.yml -u ec2-user --private-key /home/admin/Documents/PrivateSvr.pem -vvv"
   }
 
+#  provisioner "local-exec" {
+#    command = "terraform-inventory -inventory ./ > inv.ini"
+#  }
+
+
+
+
+
+#   provisioner "local-exec" {
+#    command = "ansible-playbook -i terraform-inventory apache.yml -u ec2-user --private-key /home/admin/Documents/PrivateSvr.pem -vvv"
+#  }
 
 }
 
