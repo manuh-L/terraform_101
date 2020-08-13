@@ -98,6 +98,7 @@ resource "aws_instance" "apache_terraform" {
     ]
   }
 
+#Creates inventory for ansible
   provisioner "local-exec" {
       command = <<EOD
 cat <<EOF > inv.ini
@@ -110,7 +111,7 @@ EOF
 EOD
   }
 
-
+#executes ansible playbook to install apache
   provisioner "local-exec" {
     command = "ansible-playbook -i inv.ini apache.yml"
   }
