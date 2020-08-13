@@ -1,5 +1,3 @@
-aws_access_key = "AKIA2BIHHWQRAHWEGJEN"
-aws_secret_key = "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"
+user = "ec2-user"
 key_name = "PrivateSvr"
 private_key_path = "/home/admin/Documents/PrivateSvr.pem"
-user = "ec2-user"
