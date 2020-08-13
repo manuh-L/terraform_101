@@ -1,15 +1,4 @@
-##################################################################################
-# VARIABLES
-##################################################################################
 
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
-variable "private_key_path" {}
-variable "key_name" {}
-variable "user" {}
-variable "region" {
-  default = "af-south-1"
-}
 
 ##################################################################################
 # PROVIDERS
@@ -51,7 +40,7 @@ data "aws_ami" "aws-linux" {
 # RESOURCES
 ##################################################################################
 
-#This uses the default VPC.  It WILL NOT delete it on destroy.
+
 resource "aws_default_vpc" "default" {
 
 }
@@ -112,7 +101,7 @@ resource "aws_instance" "apache_terraform" {
   provisioner "local-exec" {
       command = <<EOD
 cat <<EOF > inv.ini
-[web]
+[web] 
 ${aws_instance.apache_terraform.public_ip}
 [web:vars]
 ansible_user=${var.user}
@@ -125,30 +114,5 @@ EOD
   provisioner "local-exec" {
     command = "ansible-playbook -i inv.ini apache.yml"
   }
-/*
 
- provisioner "local-exec" {
-    command = "TF_STATE=./ ansible-playbook --inventory-file=/usr/sbin/terraform-inventory ./apache.yml -u ec2-user --private-key /home/admin/Documents/PrivateSvr.pem -vvv"
-  }
-*/
-#  provisioner "local-exec" {
-#    command = "terraform-inventory -inventory ./ > inv.ini"
-#  }
-
-
-
-
-
-#   provisioner "local-exec" {
-#    command = "ansible-playbook -i terraform-inventory apache.yml -u ec2-user --private-key /home/admin/Documents/PrivateSvr.pem -vvv"
-#  }
-
-}
-
-##################################################################################
-# OUTPUT
-##################################################################################
-
-output "aws_instance_public_dns" {
-  value = aws_instance.apache_terraform.public_dns
 }
