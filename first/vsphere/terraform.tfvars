@@ -1,20 +1,19 @@
-
-
-vsphere_server = "svdrsvcp01"
-datacenter = "Moza Banco"
-cluster= "Disaster Recovery Site"
-datastore= "Pool3-DataStore12-VNXR5"
-net_name = "VLAN 850 - Servers Dev"
-template= "Win2k16_pvscsi_winrm"
-vm_name = "SVDRSTEST" 
+#vcenter
+vsphere_server = "vcenter name or ip"
+datacenter = "Maputo"
+cluster= "DEV"
+datastore= "Bronze"
+net_name = "Servers Dev"
+template= "Win2k16_updated"
+vm_name = "Test_Terra" 
 workgroup = "Hashicorp"
 
 #Resources
 num_cpus = "2"
 memory   = "4096"
 
-
-ipv4_address = "10.111.133.11"
+#network
+ipv4_address = "192.168.133.20"
 ipv4_netmask = "27"
-dns_server_list = ["10.111.1.97"]
-ipv4_gateway = "10.111.133.30"
+dns_server_list = ["192.168.10.1"]
+ipv4_gateway = "192.168.133.30"
