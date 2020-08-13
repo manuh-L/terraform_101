@@ -6,6 +6,7 @@ variable "aws_access_key" {}
 variable "aws_secret_key" {}
 variable "private_key_path" {}
 variable "key_name" {}
+variable "user" {}
 variable "region" {
   default = "af-south-1"
 }
@@ -56,7 +57,7 @@ resource "aws_default_vpc" "default" {
 }
 
 resource "aws_security_group" "allow_ssh" {
-  name        = "SSH_HTTP_DEMO"
+  name        = "SSH_HTTP_ALLOW"
   description = "Allow ports 22 & 80"
   vpc_id      = aws_default_vpc.default.id
 
@@ -95,8 +96,8 @@ resource "aws_instance" "apache_terraform" {
 
   connection {
     type        = "ssh"
-    host        = self.public_ip
-    user        = "ec2-user"
+    user        = var.user
+    host        = self.public_ip    
     private_key = file(var.private_key_path)
 
   }
@@ -108,18 +109,28 @@ resource "aws_instance" "apache_terraform" {
     ]
   }
 
-  
-
- 
   provisioner "local-exec" {
-    command = "ansible-playbook -i inv.ini apache.yml -u ec2-user --private-key /home/admin/Documents/PrivateSvr.pem -vvv"
+      command = <<EOD
+cat <<EOF > inv.ini
+[web]
+${aws_instance.apache_terraform.public_ip}
+[web:vars]
+ansible_user=${var.user}
+ansible_ssh_private_key_file=${var.private_key_path}
+EOF
+EOD
   }
 
+
+  provisioner "local-exec" {
+    command = "ansible-playbook -i inv.ini apache.yml"
+  }
+/*
 
  provisioner "local-exec" {
     command = "TF_STATE=./ ansible-playbook --inventory-file=/usr/sbin/terraform-inventory ./apache.yml -u ec2-user --private-key /home/admin/Documents/PrivateSvr.pem -vvv"
   }
-
+*/
 #  provisioner "local-exec" {
 #    command = "terraform-inventory -inventory ./ > inv.ini"
 #  }

@@ -1,7 +1,6 @@
 ---
 - name: webserver configuration
-#  validate_certs: false
-  hosts: apache_terraform
+  hosts: web
   become: true
 
   tasks:
