@@ -1,23 +1,4 @@
-##################################################################################
-# VARIABLES
-##################################################################################
-variable "vsphere_user" {}
-variable "vsphere_password" {}
-variable "vsphere_server" {}
-variable "vm_password" {}
-variable "datacenter" {}
-variable "cluster" {}
-variable "datastore" {}
-variable "net_name" {}
-variable "template" {}
-variable "vm_name" {}
-variable "workgroup" {}
-variable "num_cpus" {}
-variable "memory" {}
-variable "ipv4_address" {}
-variable "ipv4_netmask" {}
-variable "dns_server_list" {}
-variable "ipv4_gateway" {}
+
 
 provider "vsphere" {
   user           = var.vsphere_user
@@ -27,6 +8,10 @@ provider "vsphere" {
  
   allow_unverified_ssl = true
 }
+
+##################################################################################
+# DATA
+##################################################################################
 
 data "vsphere_datacenter" "dc" {
   name = var.datacenter
@@ -53,6 +38,11 @@ data "vsphere_virtual_machine" "template" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
+
+##################################################################################
+# RESOURCES
+##################################################################################
+
 resource "vsphere_virtual_machine" "vm" {
   name             = var.vm_name
   datastore_id     = data.vsphere_datastore.datastore.id
@@ -62,7 +52,9 @@ resource "vsphere_virtual_machine" "vm" {
   memory   = var.memory
   guest_id = data.vsphere_virtual_machine.template.guest_id
   scsi_type = data.vsphere_virtual_machine.template.scsi_type
-  
+
+
+
   network_interface {
     network_id = data.vsphere_network.network.id
     adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
@@ -79,10 +71,15 @@ resource "vsphere_virtual_machine" "vm" {
 
     customize {
 
-      windows_options {
-        computer_name = var.vm_name
-        workgroup    = var.workgroup
-        admin_password = var.vm_password
+#      windows_options {
+#        computer_name = var.vm_name
+#        workgroup    = var.workgroup
+#        admin_password = var.vm_password
+#      }
+
+      linux_options {
+        host_name = var.hostname
+        domain    = var.domain
       }
 
       network_interface {
@@ -95,6 +92,24 @@ resource "vsphere_virtual_machine" "vm" {
       
     }
   }
+
+   connection {
+    type     = "ssh"
+    user     = "root"
+    password = var.vm_password
+    host     = vsphere_virtual_machine.vm.default_ip_address
+ }
+
+  provisioner "remote-exec" {
+   inline = [
+      "sudo yum update -y && yum install httpd -y"
+      
+    ]
+ }
+
+#   provisioner "local-exec" {
+#    command = "ansible-playbook hostname.yml -i ${vsphere_virtual_machine.vm.default_ip_address}, -u root "
+#  }
 
   
 }
