@@ -29,4 +29,7 @@ variable "domain" {
 variable "folder_path" {
     default = "MGlobal/vm/New_deployment"
 }
-
+variable "vm_number" {
+    default = 1
+    description = "Number of VMs"
+}

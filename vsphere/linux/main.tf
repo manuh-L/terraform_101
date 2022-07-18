@@ -47,7 +47,8 @@ data "vsphere_virtual_machine" "template" {
 ##################################################################################
 
 resource "vsphere_virtual_machine" "vm" {
-  name             = var.vm_name
+  count = var.vm_number
+  name             = "${var.vm_name}-${count.index + 1}"
   datastore_id     = data.vsphere_datastore.datastore.id
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
 
@@ -82,17 +83,19 @@ resource "vsphere_virtual_machine" "vm" {
 #      }
 
       linux_options {
-        host_name = var.hostname
+        host_name = "${var.hostname}-${count.index + 1}"
         domain    = var.domain
       }
 
       network_interface {
-        ipv4_address = var.ipv4_address
+        ipv4_address = "192.168.100.${count.index + 41}" #var.ipv4_address
         ipv4_netmask = var.ipv4_netmask
         dns_server_list = var.dns_server_list
       }
       
       ipv4_gateway = var.ipv4_gateway
+      dns_server_list = var.dns_server_list
+      dns_suffix_list = [var.domain]
       
     }
   }
@@ -101,7 +104,7 @@ resource "vsphere_virtual_machine" "vm" {
     type     = "ssh"
     user     = "root"
     password = var.vm_password
-    host     = vsphere_virtual_machine.vm.default_ip_address
+    host     = self.default_ip_address #vsphere_virtual_machine.vm[count.index].default_ip_address
  }
 
   provisioner "remote-exec" {
@@ -117,11 +120,11 @@ resource "vsphere_virtual_machine" "vm" {
 
 }
 
-output "name" {
-value = vsphere_virtual_machine.vm.name
+#output "name" {
+#value = vsphere_virtual_machine.vm.name
 
-}
-output "ip" {
-value = vsphere_virtual_machine.vm.default_ip_address
+#}
+#output "ip" {
+#value = vsphere_virtual_machine.vm.default_ip_address
 
-}
+#}

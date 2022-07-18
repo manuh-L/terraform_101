@@ -1,2 +1,3 @@
 .terraform
-terraform_101/first/vsphere/terraform.tfstate.backup
+terraform.tfstate.backup
+secret.tfvars
